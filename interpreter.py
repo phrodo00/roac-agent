@@ -3,8 +3,9 @@
 from subprocess import Popen, PIPE
 import sys, os
 import subprocess, json
+import time
 
-def main(argv):
+def execute_scripts():
     for root, dirs, files in os.walk('scripts'): #parametrize in config file
         for name in files:
             try:
@@ -22,5 +23,13 @@ def main(argv):
                 out, errs = proc.communicate() #clear pipes.
                 print('Script took too long')
 
+def main(argv):
+    delay = 5
+    while True:
+        now = time.time()
+        execute_scripts()
+        time.sleep(delay - (time.time() - now))
+
 if __name__ == '__main__':
     sys.exit(main(sys.argv))
+
