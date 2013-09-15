@@ -5,7 +5,7 @@ from __future__ import division, print_function, unicode_literals
 
 from roac import Roac
 
-app = Roac(delay=4)
+app = Roac(interval=4)
 
 @app.script_handler('uptime.sh')
 def handle_uptime(output):

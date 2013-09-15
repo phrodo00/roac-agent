@@ -15,7 +15,7 @@ class Roac(object):
 
     default_config = {
         'script_dir': 'scripts',
-        'delay': 30
+        'interval': 30
     }
 
     def __init__(self, **kwargs):
@@ -72,10 +72,7 @@ class Roac(object):
         """Runs the application's main loop, responsible for executing and
         listening to the scripts
         """
-
-        print(self.script_handlers)
-
-        while True:
-            now = time.time()
-            self.execute_scripts()
-            time.sleep(self.config['delay'] - (time.time() - now))
+        from .timer import RepeatingTimer
+        timer = RepeatingTimer(self.config['interval'])
+        timer.register(self.execute_scripts)
+        timer.run()
