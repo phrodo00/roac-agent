@@ -1,11 +1,15 @@
 # vim: set fileencoding=utf-8 :
 from __future__ import division, print_function, unicode_literals
 from subprocess import Popen, PIPE
+from collections import namedtuple
 import sys
 import os
 import subprocess
 import json
 import time
+
+
+Script = namedtuple('Script', ['name', 'file'])
 
 
 class Roac(object):
@@ -25,14 +29,15 @@ class Roac(object):
         self.script_handlers = []
 
     def find_scripts(self):
-        """Lists all scripts to be executed each step. They need to be
-        especified as correct root, either absolute, or relative to the
-        current working directory. Implemented as a generator function.
+        """Lists all :class:`Script`s to be executed each step. Their file
+        attribute needs to be especified as a correct path, either absolute,
+        or relative to the current working directory. Implemented as a
+        generator function.
         """
 
         for root, dirs, files in os.walk(self.config['script_dir']):
             for name in files:
-                yield os.path.join(root, name)
+                yield Script(name=name, file=os.path.join(root, name))
 
     def execute_scripts(self):
         """Runs and reads the result of scripts. This is the function that's
@@ -41,11 +46,11 @@ class Roac(object):
         :method:`run` in its own thread/process.
         """
 
-        for name in self.find_scripts():
+        for script in self.find_scripts():
             try:
                 # Run script
-                print('Executing {}'.format(name))
-                process = Popen(name, stdout=PIPE)
+                print('Executing {}'.format(script.name))
+                process = Popen(script.file, stdout=PIPE)
                 # regression: python2's subprocess doesn't support timeout
                 # deal with it manually later.
                 # see http://stackoverflow.com/questions/1191374
@@ -58,7 +63,7 @@ class Roac(object):
             else:
                 #Call functions binded to this script
                 functions = [
-                    x[1] for x in self.script_handlers if x[0] == name]
+                    x[1] for x in self.script_handlers if x[0] == script.name]
                 for f in functions:
                     try:
                         f(output=data)
