@@ -40,11 +40,7 @@ class Roac(object):
                 yield Script(name=name, file=os.path.join(root, name))
 
     def execute_scripts(self):
-        """Runs and reads the result of scripts. This is the function that's
-        called periodically. If the application using this library implements
-        its own main loop, you can either run this method periodically, or use
-        :method:`run` in its own thread/process.
-        """
+        """Runs and reads the result of scripts. """
 
         for script in self.find_scripts():
             try:
@@ -62,13 +58,7 @@ class Roac(object):
                 print('\terror: {}'.format(e))
             else:
                 #Call functions binded to this script
-                functions = [
-                    x[1] for x in self.script_handlers if x[0] == script.name]
-                for f in functions:
-                    try:
-                        f(output=data)
-                    except Exception as e:
-                        print('\t error at function: {}'.format(e))
+                self.last_output[script.name] = data
 
     def script_handler(self, script_name):
         """A decorator that is used to register a view function for a given
@@ -92,5 +82,28 @@ class Roac(object):
         """
         from .timer import RepeatingTimer
         timer = RepeatingTimer(self.config['interval'])
-        timer.register(self.execute_scripts)
+        timer.register(self.step)
         timer.run()
+
+    def handle_scripts(self):
+        """Calls the handler callbacks for each entry in last_output.
+        """
+        for script_name, data in self.last_output.iteritems():
+            functions = [
+                h[1] for h in self.script_handlers if h[0] == script_name]
+            for f in functions:
+                try:
+                    f(output=data)
+                except Exception as e:
+                    print('\t error at function: {}'.format(e))
+
+
+    def step(self):
+        """Controls what happens in a iteration.. If the application using
+        this library implements its own main loop, you can either run this
+        method periodically, or use :method:`run` in its own thread/process.
+        """
+
+        self.last_output = {}
+        self.execute_scripts()
+        self.handle_scripts()
