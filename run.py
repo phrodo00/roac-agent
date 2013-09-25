@@ -11,5 +11,21 @@ app = Roac(interval=4)
 def handle_uptime(output):
     print('asdasd')
 
+class Counter(object):
+    def __init__(self, app=None):
+        if app:
+            self.init_app(app)
+        self.counter=0
+
+    def init_app(self, app):
+        self.app = app
+        self.app.script_handler('uptime.sh')(self.count)
+
+    def count(self, output):
+        self.counter = self.counter + 1
+        print(self.counter)
+
+counter = Counter(app)
+
 app.run()
 
