@@ -117,8 +117,10 @@ class Roac(object):
                     try:
                         handler[1](script_name, data)
                     except Exception as e:
-                        print('\t error at function: {}'.format(e))
-
+                        if(self.config['debug']):
+                            raise
+                        else:
+                            print('Error at function: {}'.format(e))
 
     def step(self):
         """Controls what happens in a iteration.. If the application using

@@ -34,4 +34,8 @@ counter = Counter(app)
 def after():
     pprint.pprint(app.last_output)
 
+@app.script_handler('sh$')
+def raises(script_name, data):
+    raise Exception(script_name)
+
 app.run()
