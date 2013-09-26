@@ -9,7 +9,7 @@ app = Roac(interval=4)
 
 @app.script_handler('uptime.sh')
 def handle_uptime(script_name, data):
-    print('asdasd')
+    print('Uptime Handler')
 
 class Counter(object):
     def __init__(self, app=None):

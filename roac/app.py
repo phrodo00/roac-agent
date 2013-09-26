@@ -108,13 +108,12 @@ class Roac(object):
         """Calls the handler callbacks for each entry in last_output.
         """
         for script_name, data in self.last_output.iteritems():
-            functions = [
-                h[1] for h in self.script_handlers if h[0] == script_name]
-            for f in functions:
-                try:
-                    f(script_name, data)
-                except Exception as e:
-                    print('\t error at function: {}'.format(e))
+            for handler in self.script_handlers:
+                if handler[0] == script_name:
+                    try:
+                        handler[1](script_name, data)
+                    except Exception as e:
+                        print('\t error at function: {}'.format(e))
 
 
     def step(self):
