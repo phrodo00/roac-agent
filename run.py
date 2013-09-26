@@ -2,7 +2,7 @@
 # vim: set fileencoding=utf-8 :
 
 from __future__ import division, print_function, unicode_literals
-
+import pprint
 from roac import Roac
 
 app = Roac(interval=4)
@@ -26,6 +26,10 @@ class Counter(object):
         print(self.counter)
 
 counter = Counter(app)
+
+@app.after_handlers
+def after():
+    pprint.pprint(app.last_output)
 
 app.run()
 
