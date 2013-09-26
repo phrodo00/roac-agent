@@ -20,7 +20,8 @@ class Roac(object):
 
     default_config = {
         'script_dir': 'scripts',
-        'interval': 30
+        'interval': 30,
+        'debug': False
     }
 
     def __init__(self, **kwargs):
@@ -34,15 +35,23 @@ class Roac(object):
         or relative to the current working directory. Implemented as a
         generator function.
         """
-
         for root, dirs, files in os.walk(self.config['script_dir']):
             for name in files:
                 yield Script(name=name, file=os.path.join(root, name))
 
+    def valid_script(self, script):
+        """Checks whether to run a script. Right now we only check whether it
+        is writtable by others for security.
+        """
+        stat = os.stat(script.file)
+        can_be_written_by_others = bool(stat.st_mode & 0002)
+        return not can_be_written_by_others
+
     def execute_scripts(self):
         """Runs and reads the result of scripts. """
-
         for script in self.find_scripts():
+            if not self.valid_script(script):
+                continue # Don't try to run script if invalid.
             try:
                 # Run script
                 print('Executing {}'.format(script.name))
@@ -93,7 +102,7 @@ class Roac(object):
                 h[1] for h in self.script_handlers if h[0] == script_name]
             for f in functions:
                 try:
-                    f(output=data)
+                    f(script_name, data)
                 except Exception as e:
                     print('\t error at function: {}'.format(e))
 
@@ -103,7 +112,6 @@ class Roac(object):
         this library implements its own main loop, you can either run this
         method periodically, or use :method:`run` in its own thread/process.
         """
-
         self.last_output = {}
         self.execute_scripts()
         self.handle_scripts()

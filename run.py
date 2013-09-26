@@ -8,7 +8,7 @@ from roac import Roac
 app = Roac(interval=4)
 
 @app.script_handler('uptime.sh')
-def handle_uptime(output):
+def handle_uptime(script_name, data):
     print('asdasd')
 
 class Counter(object):
@@ -21,7 +21,7 @@ class Counter(object):
         self.app = app
         self.app.script_handler('uptime.sh')(self.count)
 
-    def count(self, output):
+    def count(self, script_name, data):
         self.counter = self.counter + 1
         print(self.counter)
 
