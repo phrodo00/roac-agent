@@ -2,6 +2,7 @@
 from __future__ import division, print_function, unicode_literals
 from subprocess import Popen, PIPE
 from collections import namedtuple
+from . import matchers
 import sys
 import os
 import subprocess
@@ -50,8 +51,9 @@ class Roac(object):
         :param script_name: the name of the script that triggers the call.
         """
         def decorator(f):
+            matcher = matchers.MatchName(script_name)
             self.script_handlers.append(
-                (script_name, f))
+                (matcher, f))
             return f
         return decorator
 
@@ -109,7 +111,8 @@ class Roac(object):
         """
         for script_name, data in self.last_output.iteritems():
             for handler in self.script_handlers:
-                if handler[0] == script_name:
+                # Probably should change handler to an object or named tuple
+                if handler[0].match(script_name, data):
                     try:
                         handler[1](script_name, data)
                     except Exception as e:
