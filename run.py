@@ -21,7 +21,7 @@ class Counter(object):
 
     def init_app(self, app):
         self.app = app
-        self.app.script_handler('uptime.sh')(self.count)
+        self.app.register_script_handler(self.count, 'sh$')
 
     def count(self, script_name, data):
         self.counter = self.counter + 1

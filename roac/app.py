@@ -51,12 +51,13 @@ class Roac(object):
         :param script_name: the name of the script that triggers the call.
         """
         def decorator(f):
-            matcher = matchers.MatchName(script_name)
-            self.script_handlers.append(
-                (matcher, f))
-            return f
+            return self.register_script_handler(f, script_name)
         return decorator
 
+    def register_script_handler(self, fn, script_name):
+        matcher = matchers.MatchName(script_name)
+        self.script_handlers.append((matcher, fn))
+        return fn
 
     def find_scripts(self):
         """Lists all :class:`Script`s to be executed each step. Their file
