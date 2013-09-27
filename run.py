@@ -3,12 +3,12 @@
 
 from __future__ import division, print_function, unicode_literals
 import pprint
-from roac import Roac
+from roac import Roac, matchers
 
 app = Roac(interval=4)
 
 
-@app.script_handler('^uptime.sh$')
+@app.script_handler_by_name('^uptime.sh$')
 def handle_uptime(script_name, data):
     print('Uptime Handler')
 
@@ -21,7 +21,7 @@ class Counter(object):
 
     def init_app(self, app):
         self.app = app
-        self.app.register_script_handler(self.count, 'sh$')
+        self.app.register_script_handler(self.count, matchers.Name('sh$'))
 
     def count(self, script_name, data):
         self.counter = self.counter + 1
@@ -34,7 +34,7 @@ counter = Counter(app)
 def after():
     pprint.pprint(app.last_output)
 
-@app.script_handler('sh$')
+@app.script_handler_by_name('sh$')
 def raises(script_name, data):
     raise Exception(script_name)
 

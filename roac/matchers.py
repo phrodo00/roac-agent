@@ -6,7 +6,7 @@ import re
 functions should be called"""
 
 
-class ProtoMatcher(object):
+class Proto(object):
     """Example of a matcher, doesn't match anything"""
     def match(self, script_name, data):
         """If this method returns True, then the handler function associated
@@ -14,13 +14,13 @@ class ProtoMatcher(object):
         return False
 
 
-class MatchAnything(object):
+class Any(object):
     """Will call function for each script"""
     def match(self, script_name, data):
         return True
 
 
-class MatchName(object):
+class Name(object):
     def __init__(self, pattern):
         self.prog = re.compile(pattern)
 

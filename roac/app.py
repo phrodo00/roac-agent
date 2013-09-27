@@ -40,7 +40,7 @@ class Roac(object):
         self.after_handler_functions.append(f)
         return f
 
-    def script_handler(self, script_name):
+    def script_handler(self, matcher):
         """A decorator that is used to register a view function for a given
         script::
 
@@ -51,13 +51,23 @@ class Roac(object):
         :param script_name: the name of the script that triggers the call.
         """
         def decorator(f):
-            return self.register_script_handler(f, script_name)
+            return self.register_script_handler(f, matcher)
         return decorator
 
-    def register_script_handler(self, fn, script_name):
-        matcher = matchers.MatchName(script_name)
+    def register_script_handler(self, fn, matcher):
         self.script_handlers.append((matcher, fn))
         return fn
+
+    def script_handler_by_name(self, name):
+        """Shorthand decorator for handling scripts based on matching a
+        regular expression to their filename. Makes use of 
+        :class:`matcher.Name`
+        """
+        def decorator(f):
+            matcher = matchers.Name(name)
+            return self.register_script_handler(f, matcher)
+        return decorator
+
 
     def find_scripts(self):
         """Lists all :class:`Script`s to be executed each step. Their file
