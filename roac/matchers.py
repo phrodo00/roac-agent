@@ -44,3 +44,9 @@ class Name(object):
 
     def match(self, script_name, data):
         return self.prog.search(script_name) is not None
+
+# Instanciate Any and Nothing matchers so they don't have to be created each
+# time (they'd be all the same since they don't really have data)
+
+NOTHING = Nothing()
+ANY = Any()
