@@ -25,4 +25,8 @@ class RepeatingTimer:
             now = time.time()
             for callback in self.callbacks:
                 callback.function(*callback.args, **callback.kwargs)
-            time.sleep(self.interval - (time.time() - now))
+            sleep_time = self.interval - (time.time() - now)
+            if(sleep_time > 0):
+                time.sleep(self.interval - (time.time() - now))
+            else:
+                print('Iteration took too long')
