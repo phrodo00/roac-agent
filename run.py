@@ -21,7 +21,8 @@ class Counter(object):
 
     def init_app(self, app):
         self.app = app
-        self.app.register_script_handler(self.count, matchers.Name('sh$'))
+        self.app.register_script_handler(self.count, 
+                matchers.And(matchers.Name('sh$'), matchers.Any()))
 
     def count(self, script_name, data):
         self.counter = self.counter + 1
