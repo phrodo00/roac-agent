@@ -22,8 +22,9 @@ class Any(object):
 
 class And(object):
     """Combines multiple matches in an and statement.
-    (to do an or, simply register a single function multiple times with
-    different matchers
+    To do an OR, simply register a single function multiple times with
+    different matchers. More complicated logic should be handled with a
+    custom matcher.
     """
     def __init__(self, *args):
         self.matchers = args
