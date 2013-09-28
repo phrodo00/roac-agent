@@ -22,7 +22,7 @@ class Counter(object):
     def init_app(self, app):
         self.app = app
         self.app.register_script_handler(self.count, 
-                matchers.And(matchers.Name('sh$'), matchers.Any()))
+                matchers.And(matchers.Name('sh$'), matchers.ANY))
 
     def count(self, script_name, data):
         self.counter = self.counter + 1
@@ -38,5 +38,9 @@ def after():
 @app.script_handler_by_name('sh$')
 def raises(script_name, data):
     raise Exception(script_name)
+
+@app.script_handler
+def any(script_name, data):
+    print('ANY handler')
 
 app.run()
