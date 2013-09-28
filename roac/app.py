@@ -9,6 +9,7 @@ import os
 import subprocess
 import json
 import time
+import signal
 
 
 Script = namedtuple('Script', ['name', 'file'])
@@ -23,7 +24,8 @@ class Roac(object):
     default_config = {
         'script_dir': 'scripts',
         'interval': 30,
-        'debug': False
+        'debug': False,
+        'script_timeout': 5
     }
 
     def __init__(self, **kwargs):
@@ -89,21 +91,32 @@ class Roac(object):
 
     def execute_scripts(self):
         """Runs and reads the result of scripts. """
+
+        class TimeoutExpired(Exception):
+            pass
+
+        def alarm_handler(signum, frame):
+            raise TimeoutExpired
+
+        signal.signal(signal.SIGALRM, alarm_handler)
+
         for script in self.find_scripts():
             if not self.valid_script(script):
-                continue  # Don't try to run script if invalid.
+                continue  # Don't attempt to run script if invalid.
             try:
-                # Run script
                 print('Executing {}'.format(script.name))
-                process = Popen(script.file, stdout=PIPE)
-                # regression: python2's subprocess doesn't support timeout
-                # deal with it manually later.
-                # see http://stackoverflow.com/questions/1191374
-                out, errs = process.communicate()
+                signal.alarm(self.config['script_timeout'])
+                proc = Popen(script.file, stdout=PIPE)
+                out, errs = proc.communicate()
+                signal.alarm(0)  # Reset the alarm
                 out = out.decode()
                 data = json.loads(out)
             except (OSError, ValueError) as e:
                 print('\terror: {}'.format(e))
+            except TimeoutExpired:
+                print('Script took too long')
+                proc.kill()
+                proc.communicate()
             else:
                 #Call functions binded to this script
                 self.last_output[script.name] = data
