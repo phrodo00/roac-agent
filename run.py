@@ -5,7 +5,7 @@ from __future__ import division, print_function, unicode_literals
 import pprint
 from roac import Roac, matchers
 
-app = Roac(interval=4)
+app = Roac(interval=4, script_timeout=1)
 
 
 @app.script_handler_by_name('^uptime.sh$')
