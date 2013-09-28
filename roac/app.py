@@ -3,6 +3,7 @@ from __future__ import division, print_function, unicode_literals
 from subprocess import Popen, PIPE
 from collections import namedtuple
 from . import matchers
+from .functionlist import FunctionList
 import sys
 import os
 import subprocess
@@ -29,8 +30,8 @@ class Roac(object):
         self.config = self.default_config
         self.config.update(kwargs)
         self.script_handlers = []
-        self.before_execution_functions = []
-        self.after_handler_functions = []
+        self.before_execution_functions = FunctionList()
+        self.after_handler_functions = FunctionList()
 
     def before_excecution(self, f):
         self.before_execution_functions.append(f)
@@ -60,14 +61,13 @@ class Roac(object):
 
     def script_handler_by_name(self, name):
         """Shorthand decorator for handling scripts based on matching a
-        regular expression to their filename. Makes use of 
+        regular expression to their filename. Makes use of
         :class:`matcher.Name`
         """
         def decorator(f):
             matcher = matchers.Name(name)
             return self.register_script_handler(f, matcher)
         return decorator
-
 
     def find_scripts(self):
         """Lists all :class:`Script`s to be executed each step. Their file
@@ -91,7 +91,7 @@ class Roac(object):
         """Runs and reads the result of scripts. """
         for script in self.find_scripts():
             if not self.valid_script(script):
-                continue # Don't try to run script if invalid.
+                continue  # Don't try to run script if invalid.
             try:
                 # Run script
                 print('Executing {}'.format(script.name))
@@ -138,9 +138,7 @@ class Roac(object):
         method periodically, or use :method:`run` in its own thread/process.
         """
         self.last_output = {}
-        for function in self.before_execution_functions:
-            function()
+        self.before_execution_functions()
         self.execute_scripts()
         self.handle_scripts()
-        for function in self.after_handler_functions:
-            function()
+        self.after_handler_functions()
