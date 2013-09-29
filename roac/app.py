@@ -4,6 +4,7 @@ from subprocess import Popen, PIPE
 from collections import namedtuple
 from . import matchers
 from .functionlist import FunctionList
+from .config import Config
 import sys
 import os
 import subprocess
@@ -29,7 +30,7 @@ class Roac(object):
     }
 
     def __init__(self, **kwargs):
-        self.config = self.default_config
+        self.config = Config(self.default_config)
         self.config.update(kwargs)
         self.script_handlers = []
         self.before_execution_functions = FunctionList()

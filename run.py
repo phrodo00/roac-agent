@@ -7,6 +7,8 @@ from roac import Roac, matchers
 
 app = Roac(interval=4, script_timeout=1)
 
+app.config.from_file('run.json')
+
 
 @app.script_handler_by_name('^uptime.sh$')
 def handle_uptime(script_name, data):
