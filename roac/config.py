@@ -4,6 +4,22 @@ import json
 import os
 
 
+class ConfigAttribute(object):
+    """Descriptor that redirects itself to a dictionary key in the config
+    attribute of an object
+    """
+    def __init__(self, key):
+        self.__name__ = key
+
+    def __get__(self, obj, type=None):
+        if obj is None:
+            return self
+        return obj.config[self.__name__]
+
+    def __set__(self, obj, value):
+        obj.config[self.__name__] = value
+
+
 class Config(dict):
     """Handles app configuration. Also provides methods for loading 
     configuration values from files

@@ -4,7 +4,7 @@ from subprocess import Popen, PIPE
 from collections import namedtuple
 from . import matchers
 from .functionlist import FunctionList
-from .config import Config
+from .config import Config, ConfigAttribute
 import sys
 import os
 import subprocess
@@ -28,6 +28,11 @@ class Roac(object):
         'debug': False,
         'script_timeout': 5
     }
+
+    interval = ConfigAttribute('interval')
+    script_dir  = ConfigAttribute('script_dir')
+    debug = ConfigAttribute('debug')
+    script_timeout = ConfigAttribute('script_timeout')
 
     def __init__(self, **kwargs):
         self.config = Config(self.default_config)
@@ -83,7 +88,7 @@ class Roac(object):
         or relative to the current working directory. Implemented as a
         generator function.
         """
-        for root, dirs, files in os.walk(self.config['script_dir']):
+        for root, dirs, files in os.walk(self.script_dir):
             for name in files:
                 yield Script(name=name, file=os.path.join(root, name))
 
@@ -111,7 +116,7 @@ class Roac(object):
                 continue  # Don't attempt to run script if invalid.
             try:
                 print('Executing {}'.format(script.name))
-                signal.alarm(self.config['script_timeout'])
+                signal.alarm(self.script_timeout)
                 proc = Popen(script.file, stdout=PIPE)
                 out, errs = proc.communicate()
                 signal.alarm(0)  # Reset the alarm
@@ -132,7 +137,7 @@ class Roac(object):
         listening to the scripts
         """
         from .timer import RepeatingTimer
-        timer = RepeatingTimer(self.config['interval'])
+        timer = RepeatingTimer(self.interval)
         timer.register(self.step)
         timer.run()
 
@@ -146,7 +151,7 @@ class Roac(object):
                     try:
                         handler[1](script_name, data)
                     except Exception as e:
-                        if(self.config['debug']):
+                        if(self.debug):
                             raise
                         else:
                             print('Error at function: {}'.format(e))
