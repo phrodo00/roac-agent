@@ -1,1 +1,4 @@
-[3, 4]
+{
+    "interval": 4,
+    "script_timeout": 2
+}
