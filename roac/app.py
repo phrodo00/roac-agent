@@ -15,6 +15,7 @@ import logging
 
 
 Script = namedtuple('Script', ['name', 'file'])
+Process = namedtuple('Process', ['name', 'popen'])
 logger = logging.getLogger(__name__)
 
 
@@ -45,22 +46,30 @@ class Roac(object):
         setup_logging(self)
 
     def before_excecution(self, f):
+        """Registers a function to be called before running scripts.
+        It can be used to add information to the last_output dict
+        """
         self.before_execution_functions.append(f)
         return f
 
     def after_handlers(self, f):
+        """Register a function to be called affter all the script handlers.
+        Can be used to handle all of the data produced by the scripts
+        """
         self.after_handler_functions.append(f)
         return f
 
     def register_script_handler(self, fn, matcher):
+        """Registers a function to be run according to the matcher
+        """
         self.script_handlers.append((matcher, fn))
         return fn
 
     def script_handler(self, matcher):
-        """A decorator that is used to register a view function for a given
+        """A decorator that is used to register a function for a given
         script::
 
-            @app.script_handler('users.sh')
+            @app.script_handler(matchers.Name('users.sh'))
             def handle_users(output):
                 print('output')
 
@@ -79,6 +88,10 @@ class Roac(object):
         """Shorthand decorator for handling scripts based on matching a
         regular expression to their filename. Makes use of
         :class:`matcher.Name`
+
+            @app.script_handler_by_name('users.sh')
+            def handle_users(output):
+                print('output')
         """
         def decorator(f):
             matcher = matchers.Name(name)
@@ -114,26 +127,37 @@ class Roac(object):
 
         signal.signal(signal.SIGALRM, alarm_handler)
 
+        procs = []
+
+        # Start script processes
         for script in self.find_scripts():
             if not self.valid_script(script):
                 continue  # Don't attempt to run script if invalid.
             try:
-                logger.info('Executing %s' % script.name)
+                logger.debug('Executing %s' % script.name)
+                procs.append(Process(
+                    name=script.name, popen=Popen(script.file, stdout=PIPE)))
+            except OSError as e:
+                logger.exception('Error excecuting script %s' % script.file)
+
+        # Read the result of the executed scripts.
+        for proc in procs:
+            try:
                 signal.alarm(self.script_timeout)
-                proc = Popen(script.file, stdout=PIPE)
-                out, errs = proc.communicate()
+                logger.debug('Reading output of %s' % proc.name)
+                out, errs = proc.popen.communicate()
                 signal.alarm(0)  # Reset the alarm
                 out = out.decode()
                 data = json.loads(out)
             except (OSError, ValueError) as e:
-                logger.exception('Error excecuting script %s' % script.file)
+                logger.exception('Error reading output of %s' % script.file)
             except TimeoutExpired:
                 logger.warning('Script took too long')
-                proc.kill()
-                proc.communicate()
+                proc.popen.kill()
+                proc.popen.communicate()
             else:
                 #Call functions binded to this script
-                self.last_output[script.name] = data
+                self.last_output[proc.name] = data
 
     def run(self):
         """Runs the application's main loop, responsible for executing and
