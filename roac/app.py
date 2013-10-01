@@ -5,15 +5,18 @@ from collections import namedtuple
 from . import matchers
 from .functionlist import FunctionList
 from .config import Config, ConfigAttribute
+from .logs import setup_logging
 import sys
 import os
 import subprocess
 import json
 import time
 import signal
+import logging
 
 
 Script = namedtuple('Script', ['name', 'file'])
+logger = logging.getLogger(__name__)
 
 
 class Roac(object):
@@ -40,6 +43,7 @@ class Roac(object):
         self.script_handlers = []
         self.before_execution_functions = FunctionList()
         self.after_handler_functions = FunctionList()
+        setup_logging(self)
 
     def before_excecution(self, f):
         self.before_execution_functions.append(f)
@@ -115,7 +119,7 @@ class Roac(object):
             if not self.valid_script(script):
                 continue  # Don't attempt to run script if invalid.
             try:
-                print('Executing {}'.format(script.name))
+                logger.info('Executing %s' % script.name)
                 signal.alarm(self.script_timeout)
                 proc = Popen(script.file, stdout=PIPE)
                 out, errs = proc.communicate()
@@ -123,9 +127,9 @@ class Roac(object):
                 out = out.decode()
                 data = json.loads(out)
             except (OSError, ValueError) as e:
-                print('\terror: {}'.format(e))
+                logger.exception('Error excecuting script %s' % script.file)
             except TimeoutExpired:
-                print('Script took too long')
+                logger.warning('Script took too long')
                 proc.kill()
                 proc.communicate()
             else:
@@ -154,7 +158,8 @@ class Roac(object):
                         if(self.debug):
                             raise
                         else:
-                            print('Error at function: {}'.format(e))
+                            logger.exception(
+                                'Error at function: %s' % handler[1])
 
     def step(self):
         """Controls what happens in a iteration.. If the application using

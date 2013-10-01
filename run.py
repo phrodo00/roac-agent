@@ -3,11 +3,12 @@
 
 from __future__ import division, print_function, unicode_literals
 import pprint
-from roac import Roac, matchers
+from roac import Roac, matchers, logs
 
-app = Roac(interval=4, script_timeout=1)
+app = Roac()
 
 app.config.from_file('run.json')
+logs.log_to_stderr()  # Log to stderr even outside debug mode
 
 
 @app.script_handler_by_name('^uptime.sh$')

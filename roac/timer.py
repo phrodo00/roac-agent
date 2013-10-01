@@ -2,9 +2,11 @@
 from __future__ import division, print_function, unicode_literals
 from collections import namedtuple
 import time
+import logging
 
 
 Callback = namedtuple('Callback', ['function', 'args', 'kwargs'])
+logger = logging.getLogger(__name__)
 
 
 class RepeatingTimer:
@@ -29,4 +31,4 @@ class RepeatingTimer:
             if(sleep_time > 0):
                 time.sleep(self.interval - (time.time() - now))
             else:
-                print('Iteration took too long')
+                logger.warning('Iteration took too long')
