@@ -1,5 +1,4 @@
 # vim: set fileencoding=utf-8 :
-from __future__ import division, print_function, unicode_literals
 from subprocess import Popen, PIPE
 from collections import namedtuple
 from . import matchers
@@ -33,7 +32,7 @@ class Roac(object):
     }
 
     interval = ConfigAttribute('interval')
-    script_dir  = ConfigAttribute('script_dir')
+    script_dir = ConfigAttribute('script_dir')
     debug = ConfigAttribute('debug')
     script_timeout = ConfigAttribute('script_timeout')
 

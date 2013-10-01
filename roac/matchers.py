@@ -1,5 +1,4 @@
 # vim: set fileencoding=utf-8 :
-from __future__ import division, print_function, unicode_literals
 import re
 
 """Collection of matchers for use in :class:`Roac`. They control when handler

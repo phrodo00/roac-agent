@@ -1,5 +1,4 @@
 # vim: set fileencoding=utf-8 :
-from __future__ import division, print_function, unicode_literals
 import json
 import os
 
@@ -21,7 +20,7 @@ class ConfigAttribute(object):
 
 
 class Config(dict):
-    """Handles app configuration. Also provides methods for loading 
+    """Handles app configuration. Also provides methods for loading
     configuration values from files
     """
 
@@ -46,7 +45,7 @@ class Config(dict):
             self.update(data)
 
     def from_envvar(self, envvar):
-        """Reads a json-formated file pointed by the environment variable 
+        """Reads a json-formated file pointed by the environment variable
         envvar and loads it as configuration values.
         The top parent needs to be an object or it raises TypeError.
         """

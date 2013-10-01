@@ -1,5 +1,4 @@
 # vim: set fileencoding=utf-8 :
-from __future__ import division, print_function, unicode_literals
 
 
 class FunctionList(list):
@@ -8,5 +7,6 @@ class FunctionList(list):
     """
     def call(self, *args, **kwargs):
         return [fn(*args, **kwargs) for fn in self]
+
     def __call__(self, *args, **kwargs):
         return self.call(*args, **kwargs)
