@@ -3,6 +3,7 @@
 
 from __future__ import print_function
 import pprint
+import logging
 from roac import Roac, matchers, logs
 
 app = Roac()
@@ -29,7 +30,7 @@ class Counter(object):
 
     def count(self, script_name, data):
         self.counter = self.counter + 1
-        print(self.counter)
+        logging.info(self.counter)
 
 counter = Counter(app)
 
@@ -39,11 +40,35 @@ def after():
     pprint.pprint(app.last_output)
 
 @app.script_handler_by_name('sh$')
-def raises(script_name, data):
+def fails(script_name, data):
     raise Exception(script_name)
 
 @app.script_handler
 def any(script_name, data):
-    print('ANY handler')
+    logging.info('ANY handler')
+
+import requests
+import socket
+import json
+
+class AggregatorPoster(object):
+    """Posts the scripts' data to an aggregator"""
+    def __init__(self, app=None):
+        if app:
+            self.init_app(app)
+        self.node_name = socket.gethostname()
+
+    def init_app(self, app):
+        self.app = app
+        app.after_handlers(self.post_to_service)
+
+    def post_to_service(self):
+        url_template = app.config['aggregator_url']
+        url = url_template.format(node_name=self.node_name)
+        logging.info(url)
+        r = requests.post(url, data=json.dumps(app.last_output),
+                          headers={'Content-Type': 'application/json'})
+
+poster = AggregatorPoster(app)
 
 app.run()
