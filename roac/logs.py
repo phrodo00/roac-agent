@@ -1,6 +1,7 @@
 # vim: set fileencoding=utf-8 :
 import logging
 
+
 def log_to_stderr(logger=None):
     """Configures the python log system to log to stderr
 
@@ -23,6 +24,7 @@ def log_to_stderr(logger=None):
     handler.setFormatter(formatter)
 
     logger.addHandler(handler)
+
 
 def setup_logging(app):
     """Setup the python logging system according to whether the given app

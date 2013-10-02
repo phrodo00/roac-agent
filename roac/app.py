@@ -135,19 +135,18 @@ class Roac(object):
         # Read the result of the executed scripts.
         for script in [script for script in scripts if script.ran()]:
             try:
-                signal.alarm(self.script_timeout)
+                signal.alarm(self.script_timeout)  # Set alarm
                 out, errs = script.communicate()
-                signal.alarm(0)  # Reset the alarm
+                signal.alarm(0)  # Reset alarm
                 out = out.decode()
                 data = json.loads(out)
             except (OSError, ValueError) as e:
                 logger.exception('Error reading output of %s' % script.path)
-            except TimeoutExpired:
+            except TimeoutExpired:  # Alarm went off
                 logger.warning('Script took too long')
                 script.kill()
                 script.communicate()
             else:
-                #Call functions binded to this script
                 self.last_output[script.name] = data
 
     def run(self):
