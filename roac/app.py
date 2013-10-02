@@ -1,21 +1,18 @@
 # vim: set fileencoding=utf-8 :
-from subprocess import Popen, PIPE
 from collections import namedtuple
 from . import matchers
 from .functionlist import FunctionList
 from .config import Config, ConfigAttribute
 from .logs import setup_logging
+from .script import Script
 import sys
 import os
-import subprocess
 import json
 import time
 import signal
 import logging
 
 
-Script = namedtuple('Script', ['name', 'file'])
-Process = namedtuple('Process', ['name', 'popen'])
 logger = logging.getLogger(__name__)
 
 
@@ -106,19 +103,20 @@ class Roac(object):
         """
         for root, dirs, files in os.walk(self.script_dir):
             for name in files:
-                yield Script(name=name, file=os.path.join(root, name))
+                yield Script(name=name, path=os.path.join(root, name))
 
     def valid_script(self, script):
         """Checks whether to run a script. Right now we only check whether it
         is writtable by others for security.
         """
-        stat = os.stat(script.file)
+        stat = os.stat(script.path)
         can_be_written_by_others = bool(stat.st_mode & 0002)
         return not can_be_written_by_others
 
     def execute_scripts(self):
         """Runs and reads the result of scripts. """
 
+        # Setup Timeout
         class TimeoutExpired(Exception):
             pass
 
@@ -127,37 +125,30 @@ class Roac(object):
 
         signal.signal(signal.SIGALRM, alarm_handler)
 
-        procs = []
+        # Run scripts
+        scripts = [script for script in self.find_scripts() if
+                   self.valid_script(script)]
 
-        # Start script processes
-        for script in self.find_scripts():
-            if not self.valid_script(script):
-                continue  # Don't attempt to run script if invalid.
-            try:
-                logger.debug('Executing %s' % script.name)
-                procs.append(Process(
-                    name=script.name, popen=Popen(script.file, stdout=PIPE)))
-            except OSError as e:
-                logger.exception('Error excecuting script %s' % script.file)
+        for script in scripts:
+            script.run()
 
         # Read the result of the executed scripts.
-        for proc in procs:
+        for script in [script for script in scripts if script.ran()]:
             try:
                 signal.alarm(self.script_timeout)
-                logger.debug('Reading output of %s' % proc.name)
-                out, errs = proc.popen.communicate()
+                out, errs = script.communicate()
                 signal.alarm(0)  # Reset the alarm
                 out = out.decode()
                 data = json.loads(out)
             except (OSError, ValueError) as e:
-                logger.exception('Error reading output of %s' % script.file)
+                logger.exception('Error reading output of %s' % script.path)
             except TimeoutExpired:
                 logger.warning('Script took too long')
-                proc.popen.kill()
-                proc.popen.communicate()
+                script.kill()
+                script.communicate()
             else:
                 #Call functions binded to this script
-                self.last_output[proc.name] = data
+                self.last_output[script.name] = data
 
     def run(self):
         """Runs the application's main loop, responsible for executing and
