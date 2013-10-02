@@ -38,8 +38,10 @@ class Roac(object):
         self.config = Config(self.default_config)
         self.config.update(kwargs)
         self.script_handlers = []
-        self.before_execution_functions = FunctionList()
-        self.after_handler_functions = FunctionList()
+        self.before_execution_functions = FunctionList(
+            catch_exceptions=not self.debug)
+        self.after_handler_functions = FunctionList(
+            catch_exceptions=not self.debug)
         setup_logging(self)
 
     def before_excecution(self, f):
