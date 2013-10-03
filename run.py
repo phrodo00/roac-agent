@@ -25,8 +25,8 @@ class Counter(object):
 
     def init_app(self, app):
         self.app = app
-        self.app.register_script_handler(self.count, 
-                matchers.And(matchers.Name('sh$'), matchers.ANY))
+        self.app.register_script_handler(
+            self.count, matchers.And(matchers.Name('sh$'), matchers.ANY))
 
     def count(self, result):
         self.counter = self.counter + 1
@@ -43,17 +43,21 @@ def print_output():
         pprint.pprint(result.data)
     print('-----------------------------------------------------------------')
 
+
 #@app.script_handler_by_name('sh$')
 def fail(result):
     raise Exception(script_name)
+
 
 @app.script_handler
 def any(result):
     logging.info('ANY handler')
 
+
 import requests
 import socket
 import json
+
 
 class ResultEncoder(json.JSONEncoder):
     def default(self, obj):

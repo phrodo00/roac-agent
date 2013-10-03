@@ -19,7 +19,7 @@ def parse_and_append_result(script, output, list_):
         data = json.loads(output)
         result = Result(script, data)
     except ValueError:
-        logger.exception('Error reading output of %s' % script.path)
+        logger.exception('Error parsing output of %s' % script.path)
     else:
         list_.append(result)
 

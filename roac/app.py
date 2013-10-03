@@ -128,7 +128,7 @@ class Roac(object):
 
         signal.signal(signal.SIGALRM, alarm_handler)
 
-        # Run scripts
+        # Run scripts.
         scripts = [script for script in self.find_scripts() if
                    self.valid_script(script)]
 
@@ -138,13 +138,13 @@ class Roac(object):
         # Read the result of the executed scripts.
         for script in [script for script in scripts if script.ran()]:
             try:
-                signal.alarm(self.script_timeout)  # Set alarm
+                signal.alarm(self.script_timeout)  # Set alarm.
                 out, errs = script.communicate()
-                signal.alarm(0)  # Reset alarm
-            except TimeoutExpired:  # Alarm went off
+                signal.alarm(0)  # Reset alarm.
+            except TimeoutExpired:  # Alarm went off.
                 logger.warning('Script took too long')
                 script.kill()
-                script.communicate()
+                out, errs = script.communicate()  # Clear pipes.
             else:
                 parse_and_append_result(script, out, self.last_output)
 
