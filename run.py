@@ -4,7 +4,7 @@
 from __future__ import print_function
 import pprint
 import logging
-from roac import Roac, matchers, logs
+from roac import Roac, Result, matchers, logs
 
 app = Roac()
 
@@ -43,8 +43,8 @@ def print_output():
         pprint.pprint(result.data)
     print('-----------------------------------------------------------------')
 
-@app.script_handler_by_name('sh$')
-def fails(result):
+#@app.script_handler_by_name('sh$')
+def fail(result):
     raise Exception(script_name)
 
 @app.script_handler
@@ -55,12 +55,22 @@ import requests
 import socket
 import json
 
+class ResultEncoder(json.JSONEncoder):
+    def default(self, obj):
+        if isinstance(obj, Result):
+            return {'name': obj.name,
+                    'path': obj.path,
+                    'data': obj.data}
+        return json.JSONEncoder.default(self, obj)
+
+
 class AggregatorPoster(object):
     """Posts the scripts' data to an aggregator"""
     def __init__(self, app=None):
         if app:
             self.init_app(app)
         self.node_name = socket.gethostname()
+        self.encoder = ResultEncoder()
 
     def init_app(self, app):
         self.app = app
@@ -70,9 +80,9 @@ class AggregatorPoster(object):
         url_template = app.config['aggregator_url']
         url = url_template.format(node_name=self.node_name)
         logging.info(url)
-        r = requests.post(url, data=json.dumps(app.last_output),
+        r = requests.post(url, data=self.encoder.encode(app.last_output),
                           headers={'Content-Type': 'application/json'})
 
-#poster = AggregatorPoster(app)
+poster = AggregatorPoster(app)
 
 app.run()
