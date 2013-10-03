@@ -1,11 +1,11 @@
 # vim: set fileencoding=utf-8 :
-from collections import namedtuple
 from . import matchers
 from .functionlist import FunctionList
 from .config import Config, ConfigAttribute
 from .logs import setup_logging
 from .script import Script
 from .script_handler import ScriptHandler
+from .result import append_result
 import sys
 import os
 import json
@@ -142,16 +142,12 @@ class Roac(object):
                 signal.alarm(self.script_timeout)  # Set alarm
                 out, errs = script.communicate()
                 signal.alarm(0)  # Reset alarm
-                out = out.decode()
-                data = json.loads(out)
-            except (OSError, ValueError) as e:
-                logger.exception('Error reading output of %s' % script.path)
             except TimeoutExpired:  # Alarm went off
                 logger.warning('Script took too long')
                 script.kill()
                 script.communicate()
             else:
-                self.last_output[script.name] = data
+                append_result(script, out, self.last_output)
 
     def run(self):
         """Runs the application's main loop, responsible for executing and
@@ -165,16 +161,16 @@ class Roac(object):
     def handle_scripts(self):
         """Calls the handler callbacks for each entry in last_output.
         """
-        for script_name, data in self.last_output.iteritems():
+        for result in self.last_output:
             for handler in self.script_handlers:
-                handler.handle_script(script_name, data)
+                handler.handle_script(result)
 
     def step(self):
         """Controls what happens in a iteration.. If the application using
         this library implements its own main loop, you can either run this
         method periodically, or use :method:`run` in its own thread/process.
         """
-        self.last_output = {}
+        self.last_output = []
         self.before_execution_functions()
         self.execute_scripts()
         self.handle_scripts()

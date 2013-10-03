@@ -13,7 +13,7 @@ logs.log_to_stderr()  # Log to stderr even outside debug mode
 
 
 @app.script_handler_by_name('^uptime.sh$')
-def handle_uptime(script_name, data):
+def handle_uptime(result):
     print('Uptime Handler')
 
 
@@ -28,7 +28,7 @@ class Counter(object):
         self.app.register_script_handler(self.count, 
                 matchers.And(matchers.Name('sh$'), matchers.ANY))
 
-    def count(self, script_name, data):
+    def count(self, result):
         self.counter = self.counter + 1
         logging.info(self.counter)
 
@@ -36,15 +36,19 @@ counter = Counter(app)
 
 
 @app.after_handlers
-def after():
-    pprint.pprint(app.last_output)
+def print_output():
+    print('-----------------------------------------------------------------')
+    for result in app.last_output:
+        print('Script: %s' % result.name)
+        pprint.pprint(result.data)
+    print('-----------------------------------------------------------------')
 
 @app.script_handler_by_name('sh$')
-def fails(script_name, data):
+def fails(result):
     raise Exception(script_name)
 
 @app.script_handler
-def any(script_name, data):
+def any(result):
     logging.info('ANY handler')
 
 import requests
@@ -69,6 +73,6 @@ class AggregatorPoster(object):
         r = requests.post(url, data=json.dumps(app.last_output),
                           headers={'Content-Type': 'application/json'})
 
-poster = AggregatorPoster(app)
+#poster = AggregatorPoster(app)
 
 app.run()

@@ -36,8 +36,6 @@ class Script(object):
             logger.debug('Reading output of %s', self.path)
             self.out, self.err = self.popen.communicate(*args, **kwargs)
             return (self.out, self.err)
-        else:
-            return None
 
     def kill(self, *args, **kwargs):
         """Calls kill on the Popen object. For more info see the subprocess
@@ -46,5 +44,3 @@ class Script(object):
         if self.popen:
             logger.debug('Killing script %s', self.path)
             return self.popen.kill(*args, **kwargs)
-        else:
-            return None

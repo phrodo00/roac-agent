@@ -11,10 +11,10 @@ class ScriptHandler(object):
         self.fn = fn
         self.catch_exceptions = catch_exceptions
 
-    def handle_script(self, script_name, data):
-        if self.matcher.match(script_name, data):
+    def handle_script(self, result):
+        if self.matcher.match(result):
             try:
-                return self.fn(script_name, data)
+                return self.fn(result)
             except Exception:
                 logger.debug(self.catch_exceptions)
                 if self.catch_exceptions:
