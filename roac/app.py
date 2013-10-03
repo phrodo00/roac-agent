@@ -5,6 +5,7 @@ from .functionlist import FunctionList
 from .config import Config, ConfigAttribute
 from .logs import setup_logging
 from .script import Script
+from .script_handler import ScriptHandler
 import sys
 import os
 import json
@@ -61,7 +62,8 @@ class Roac(object):
     def register_script_handler(self, fn, matcher):
         """Registers a function to be run according to the matcher
         """
-        self.script_handlers.append((matcher, fn))
+        self.script_handlers.append(
+            ScriptHandler(matcher, fn, catch_exceptions=not self.debug))
         return fn
 
     def script_handler(self, matcher):
@@ -165,16 +167,7 @@ class Roac(object):
         """
         for script_name, data in self.last_output.iteritems():
             for handler in self.script_handlers:
-                # Probably should change handler to an object or named tuple
-                if handler[0].match(script_name, data):
-                    try:
-                        handler[1](script_name, data)
-                    except Exception as e:
-                        if(self.debug):
-                            raise
-                        else:
-                            logger.exception(
-                                'Error at function: %s' % handler[1])
+                handler.handle_script(script_name, data)
 
     def step(self):
         """Controls what happens in a iteration.. If the application using
