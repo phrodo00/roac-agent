@@ -1,10 +1,27 @@
 # vim: set fileencoding=utf-8 :
 
+from . import Result
 from subprocess import Popen, PIPE
 import logging
+import json
 
 
 logger = logging.getLogger(__name__)
+
+
+def parse_and_append_result(script, output, list_):
+    """Parses the output of an script and appends the resulting Result object
+    to list_. The Result object will copy the name and path attributes from
+    the script parameter.
+    """
+    try:
+        output = output.decode()
+        data = json.loads(output)
+        result = Result(script, data)
+    except ValueError:
+        logger.exception('Error reading output of %s' % script.path)
+    else:
+        list_.append(result)
 
 
 class Script(object):

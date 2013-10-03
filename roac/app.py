@@ -3,9 +3,8 @@ from . import matchers
 from .functionlist import FunctionList
 from .config import Config, ConfigAttribute
 from .logs import setup_logging
-from .script import Script
+from .script import Script, parse_and_append_result
 from .script_handler import ScriptHandler
-from .result import append_result
 import sys
 import os
 import json
@@ -147,7 +146,7 @@ class Roac(object):
                 script.kill()
                 script.communicate()
             else:
-                append_result(script, out, self.last_output)
+                parse_and_append_result(script, out, self.last_output)
 
     def run(self):
         """Runs the application's main loop, responsible for executing and
