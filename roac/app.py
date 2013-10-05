@@ -3,17 +3,31 @@ from . import matchers
 from .functionlist import FunctionList
 from .config import Config, ConfigAttribute
 from .logs import setup_logging
-from .script import Script, parse_and_append_result
+from .script import Script
 from .script_handler import ScriptHandler
-import sys
+from .result import Result
 import os
-import json
-import time
 import signal
 import logging
+import json
 
 
 logger = logging.getLogger(__name__)
+
+
+def parse_and_append_result(script, output, list_):
+    """Parses the output of an script and appends the resulting Result object
+    to list_. The Result object will copy the name and path attributes from
+    the script parameter.
+    """
+    try:
+        output = output.decode()
+        data = json.loads(output)
+        result = Result(script, data)
+    except ValueError:
+        logger.exception('Error parsing output of %s' % script.path)
+    else:
+        list_.append(result)
 
 
 class Roac(object):
@@ -108,14 +122,6 @@ class Roac(object):
             for name in files:
                 yield Script(name=name, path=os.path.join(root, name))
 
-    def valid_script(self, script):
-        """Checks whether to run a script. Right now we only check whether it
-        is writtable by others for security.
-        """
-        stat = os.stat(script.path)
-        can_be_written_by_others = bool(stat.st_mode & 0002)
-        return not can_be_written_by_others
-
     def execute_scripts(self):
         """Runs and reads the result of scripts. """
 
@@ -130,7 +136,7 @@ class Roac(object):
 
         # Run scripts.
         scripts = [script for script in self.find_scripts() if
-                   self.valid_script(script)]
+                   script.is_valid()]
 
         for script in scripts:
             script.run()

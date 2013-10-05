@@ -1,27 +1,11 @@
 # vim: set fileencoding=utf-8 :
 
-from . import Result
 from subprocess import Popen, PIPE
 import logging
-import json
+import os
 
 
 logger = logging.getLogger(__name__)
-
-
-def parse_and_append_result(script, output, list_):
-    """Parses the output of an script and appends the resulting Result object
-    to list_. The Result object will copy the name and path attributes from
-    the script parameter.
-    """
-    try:
-        output = output.decode()
-        data = json.loads(output)
-        result = Result(script, data)
-    except ValueError:
-        logger.exception('Error parsing output of %s' % script.path)
-    else:
-        list_.append(result)
 
 
 class Script(object):
@@ -61,3 +45,12 @@ class Script(object):
         if self.popen:
             logger.debug('Killing script %s', self.path)
             return self.popen.kill(*args, **kwargs)
+
+    def is_valid(self):
+        """Checks whether to run a script. Right now we only check whether it
+        is writtable by others for security.
+        """
+        stat = os.stat(self.path)
+        can_be_written_by_others = bool(stat.st_mode & 0002)
+        return not can_be_written_by_others
+
