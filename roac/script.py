@@ -11,8 +11,12 @@ logger = logging.getLogger(__name__)
 class Script(object):
 
     def __init__(self, name, path):
+        # Identifier for the script. Usually the file name, but doesn't need
+        # to be
         self.name = name
+        # path of the actual script file, either absolute or relative to CWD
         self.path = path
+        # Placeholder for subprocess object.
         self.popen = None
 
     def run(self):
@@ -53,4 +57,3 @@ class Script(object):
         stat = os.stat(self.path)
         can_be_written_by_others = bool(stat.st_mode & 0002)
         return not can_be_written_by_others
-

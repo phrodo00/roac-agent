@@ -3,7 +3,6 @@ from . import matchers
 from .functionlist import FunctionList
 from .config import Config, ConfigAttribute
 from .logs import setup_logging
-from .script import Script
 from .script_handler import ScriptHandler
 from .result import Result
 import os
@@ -48,7 +47,12 @@ class Roac(object):
     debug = ConfigAttribute('debug')
     script_timeout = ConfigAttribute('script_timeout')
 
-    def __init__(self, **kwargs):
+    def __init__(self, script_class=None, **kwargs):
+        if script_class is None:
+            from .script import Script
+            self.script_class = Script
+        else:
+            self.script_class = script_class
         self.config = Config(self.default_config)
         self.config.update(kwargs)
         self.script_handlers = []
@@ -120,7 +124,8 @@ class Roac(object):
         """
         for root, dirs, files in os.walk(self.script_dir):
             for name in files:
-                yield Script(name=name, path=os.path.join(root, name))
+                yield self.script_class(name=name,
+                                        path=os.path.join(root, name))
 
     def execute_scripts(self):
         """Runs and reads the result of scripts. """
