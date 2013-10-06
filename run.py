@@ -5,6 +5,7 @@ from __future__ import print_function
 import pprint
 import logging
 from roac import Roac, Result, matchers, logs
+from roac.ext.http_poster import HTTPPoster
 
 app = Roac()
 
@@ -54,39 +55,6 @@ def any(result):
     logging.info('ANY handler')
 
 
-import requests
-import socket
-import json
-
-
-class ResultEncoder(json.JSONEncoder):
-    def default(self, obj):
-        if isinstance(obj, Result):
-            return {'name': obj.name,
-                    'path': obj.path,
-                    'data': obj.data}
-        return json.JSONEncoder.default(self, obj)
-
-
-class AggregatorPoster(object):
-    """Posts the scripts' data to an aggregator"""
-    def __init__(self, app=None):
-        if app:
-            self.init_app(app)
-        self.node_name = socket.gethostname()
-        self.encoder = ResultEncoder()
-
-    def init_app(self, app):
-        self.app = app
-        app.after_handlers(self.post_to_service)
-
-    def post_to_service(self):
-        url_template = app.config['aggregator_url']
-        url = url_template.format(node_name=self.node_name)
-        logging.info(url)
-        r = requests.post(url, data=self.encoder.encode(app.last_output),
-                          headers={'Content-Type': 'application/json'})
-
-poster = AggregatorPoster(app)
+poster = HTTPPoster(app)
 
 app.run()
