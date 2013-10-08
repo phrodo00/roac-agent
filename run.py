@@ -5,7 +5,7 @@ from __future__ import print_function
 import pprint
 import logging
 from roac import Roac, Result, matchers, logs
-from roac.ext.http_poster import HTTPPoster
+from roac.extra.http_poster import HTTPPoster
 
 app = Roac()
 
