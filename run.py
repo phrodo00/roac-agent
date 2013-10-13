@@ -47,7 +47,7 @@ def print_output():
 
 #@app.script_handler_by_name('sh$')
 def fail(result):
-    raise Exception(script_name)
+    raise Exception(result)
 
 
 @app.script_handler
@@ -57,4 +57,5 @@ def any(result):
 
 poster = HTTPPoster(app)
 
-app.run()
+if __name__ == '__main__':
+    app.run()

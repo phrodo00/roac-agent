@@ -14,21 +14,6 @@ import json
 logger = logging.getLogger(__name__)
 
 
-def parse_and_append_result(script, output, list_):
-    """Parses the output of an script and appends the resulting Result object
-    to list_. The Result object will copy the name and path attributes from
-    the script parameter.
-    """
-    try:
-        output = output.decode()
-        data = json.loads(output)
-        result = Result(script, data)
-    except ValueError:
-        logger.exception('Error parsing output of %s' % script.path)
-    else:
-        list_.append(result)
-
-
 class Roac(object):
     """The Roac object implements the execution of scripts in a timed loop,
     reading said scripts and executing callbacks when necessary. It manages
@@ -129,6 +114,20 @@ class Roac(object):
 
     def execute_scripts(self):
         """Runs and reads the result of scripts. """
+
+        def parse_and_append_result(script, output, list_):
+            """Parses the output of an script and appends the resulting Result
+            object to list_. The Result object will copy the name and path
+            attributes from the script parameter.
+            """
+            try:
+                output = output.decode()
+                data = json.loads(output)
+                result = Result(script, data)
+            except ValueError:
+                logger.exception('Error parsing output of %s' % script.path)
+            else:
+                list_.append(result)
 
         # Setup Timeout
         class TimeoutExpired(Exception):
