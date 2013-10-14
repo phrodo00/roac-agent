@@ -1,5 +1,5 @@
 {
     "interval": 4,
     "script_timeout": 1,
-    "aggregator_url": "http://localhost:5000/log/{node_name}"
+    "aggregator_url": "http://localhost:5000/api/v1/log"
 }
