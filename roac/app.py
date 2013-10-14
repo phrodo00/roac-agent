@@ -49,7 +49,7 @@ class Roac(object):
 
     def before_excecution(self, f):
         """Registers a function to be called before running scripts.
-        It can be used to add information to the last_output dict
+        It can be used to add information to the last_output list
         """
         self.before_execution_functions.append(f)
         return f
@@ -107,10 +107,10 @@ class Roac(object):
         or relative to the current working directory. Implemented as a
         generator function.
         """
-        for root, dirs, files in os.walk(self.script_dir):
-            for name in files:
-                yield self.script_class(name=name,
-                                        path=os.path.join(root, name))
+        for name in os.listdir(self.script_dir):
+            path = os.path.join(self.script_dir, name)
+            if os.path.isfile(path):
+                yield self.script_class(name=name, path=path)
 
     def execute_scripts(self):
         """Runs and reads the result of scripts. """
