@@ -1,4 +1,4 @@
 #!/bin/sh
 
-cat /usr/share/dict/words
+echo '{"asdfg": 4}'
 while [[ 1 ]];do true;done
