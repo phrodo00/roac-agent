@@ -2,6 +2,11 @@
 import logging
 
 
+class NullHandler(logging.Handler):
+    def emit(self, record):
+        pass
+
+
 def log_to_stderr(logger=None):
     """Configures the python log system to log to stderr
 
@@ -38,5 +43,5 @@ def setup_logging(app):
         # The application should set up a proper handler if it wants logging
         # in production.
         pkg_logger = logging.getLogger(__package__)
-        handler = logging.NullHandler()
+        handler = NullHandler()
         pkg_logger.addHandler(handler)
