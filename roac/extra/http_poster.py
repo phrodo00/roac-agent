@@ -41,7 +41,7 @@ class HTTPPoster(object):
         data = {
             'name': self.node_name,
             'created_at': datetime.utcnow(),
-            'result': self.app.last_output
+            'results': self.app.last_output
         }
 
         logger.debug('Posting data to %s' % url)
