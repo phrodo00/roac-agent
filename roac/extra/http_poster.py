@@ -27,12 +27,17 @@ class HTTPPoster(object):
     def __init__(self, app=None):
         if app:
             self.init_app(app)
-        self.node_name = socket.gethostname()
+        self.node_name = self.get_node_name()
         self.encoder = RecordEncoder()
 
     def init_app(self, app):
         self.app = app
         app.after_handlers(self.post_to_service)
+
+    def get_node_name(self):
+        if 'node_name' in self.app.config:
+            return self.app.config['node_name']
+        return socket.gethostname()
 
     def post_to_service(self):
         url_template = self.app.config['aggregator_url']
