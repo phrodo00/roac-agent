@@ -45,7 +45,7 @@ def print_output():
     print('-----------------------------------------------------------------')
 
 
-#@app.script_handler_by_name('sh$')
+@app.script_handler_by_name('sh$')
 def fail(result):
     raise Exception(result)
 

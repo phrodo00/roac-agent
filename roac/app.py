@@ -1,4 +1,5 @@
 # vim: set fileencoding=utf-8 :
+from __future__ import absolute_import
 from . import matchers
 from .functionlist import FunctionList
 from .config import Config, ConfigAttribute
@@ -177,7 +178,7 @@ class Roac(object):
     def step(self):
         """Controls what happens in a iteration.. If the application using
         this library implements its own main loop, you can either run this
-        method periodically, or use :method:`run` in its own thread/process.
+        method periodically, or use :method:`run` in its own process.
         """
         self.last_output = []
         self.before_execution_functions()
