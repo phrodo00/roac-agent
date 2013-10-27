@@ -1,10 +1,10 @@
 # vim: set fileencoding=utf-8 :
 
 from roac import Result
-import requests
 import socket
 import json
 import logging
+import urllib2
 from datetime import datetime
 
 
@@ -28,7 +28,6 @@ class HTTPPoster(object):
         if app:
             self.init_app(app)
         self.node_name = self.get_node_name()
-        self.encoder = RecordEncoder()
 
     def init_app(self, app):
         self.app = app
@@ -51,9 +50,11 @@ class HTTPPoster(object):
 
         logger.debug('Posting data to %s' % url)
         try:
-            r = requests.post(url,
-                              data=self.encoder.encode(data),
-                              headers={'Content-Type': 'application/json'})
-            logger.debug(r)
+
+            data = json.dumps(data, cls=RecordEncoder)
+            req = urllib2.Request(url, data,
+                                  headers={'Content-Type': 'application/json'})
+            resp = urllib2.urlopen(req)
+
         except Exception as e:
             logger.exception("Couldn't post data: %s" % e)

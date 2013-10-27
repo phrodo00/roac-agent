@@ -24,11 +24,11 @@ class RepeatingTimer:
         """Gets the timer running"""
         self.running = True
         while self.running:
-            now = time.time()
+            start_iter = time.time()
             for callback in self.callbacks:
                 callback.function(*callback.args, **callback.kwargs)
-            sleep_time = self.interval - (time.time() - now)
+            sleep_time = self.interval - (time.time() - start_iter)
             if(sleep_time > 0):
-                time.sleep(self.interval - (time.time() - now))
+                time.sleep(sleep_time)
             else:
                 logger.warning('Iteration took too long')
