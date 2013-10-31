@@ -4,7 +4,7 @@
 from __future__ import print_function
 import pprint
 import logging
-from roac import Roac, Result, matchers, logs
+from roac import Roac, matchers, logs
 from roac.extra.http_poster import HTTPPoster
 
 app = Roac()
@@ -50,7 +50,7 @@ def fail(result):
     raise Exception(result)
 
 
-@app.script_handler
+@app.script_handler_any
 def any(result):
     logging.info('ANY handler')
 

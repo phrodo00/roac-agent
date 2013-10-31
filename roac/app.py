@@ -83,7 +83,7 @@ class Roac(object):
             return self.register_script_handler(f, matcher)
         return decorator
 
-    def script_handler(self, f):
+    def script_handler_any(self, f):
         """Shorthand decorator for adding a script handler with the
         :class:`Any` matcher."""
         return self.register_script_handler(f, matchers.ANY)
@@ -91,7 +91,7 @@ class Roac(object):
     def script_handler_by_name(self, name):
         """Shorthand decorator for handling scripts based on matching a
         regular expression to their filename. Makes use of
-        :class:`matcher.Name`
+        :class:`matcher.Name`::
 
             @app.script_handler_by_name('users.sh')
             def handle_users(output):
