@@ -1,6 +1,21 @@
 from setuptools import setup
+import sys
+
+if 'bdist_rpm' in sys.argv:
+    data_files = [('/etc/', ['examples/centos/etc/roac.cfg']),
+                  ('/etc/sysconfig/', ['examples/centos/etc/sysconfig/roacd']),
+                  ('/etc/init/', ['examples/centos/etc/init/roacd.conf',
+                                  'examples/centos/etc/init/roacd_root.conf']),
+                  ('/var/lib/roac/scripts', ['examples/scripts/*'])
+                  ]
+else:
+    data_files = [('examples', ['examples/centos']),
+                  ('scripts', ['examples/scripts'])]
 
 setup(name='roac',
+      packages=['roac', 'roac.extra'],
+      scripts=['bin/roacd'],
+      data_files=data_files,
       version='0.0.1',
       description='System monitoring agent framework',
       classifiers=[
@@ -11,9 +26,9 @@ setup(name='roac',
           'Operating System :: POSIX',
           'Topic :: Software Development :: Libraries :: Application Frameworks',
           'Topic :: System :: Monitoring'],
-      url='https://github.com/phrodo00/roac-agent',
+      url='https://github.com/roac-monitoring/roac-agent',
       author='Javier Aravena Claramunt',
       author_email='javier@aravenas.com',
       license='BSD',
-      packages=['roac'],
-      zip_safe=False)
+      zip_safe=False
+      )
