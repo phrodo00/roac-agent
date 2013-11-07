@@ -39,7 +39,8 @@ class HTTPPoster(object):
         return socket.gethostname()
 
     def post_to_service(self):
-        url_template = self.app.config['aggregator_url']
+        url_template = self.app.config.setdefault(
+            'aggregator_url', "http://localhost:5000/api/v1/log")
         url = url_template.format(node_name=self.node_name)
 
         data = {
@@ -54,7 +55,7 @@ class HTTPPoster(object):
             data = json.dumps(data, cls=RecordEncoder)
             req = urllib2.Request(url, data,
                                   headers={'Content-Type': 'application/json'})
-            resp = urllib2.urlopen(req)
+            urllib2.urlopen(req)
 
         except Exception as e:
             logger.exception("Couldn't post data: %s" % e)

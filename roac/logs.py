@@ -8,7 +8,7 @@ class NullHandler(logging.Handler):
         pass
 
 
-def log_to_stderr(logger=None):
+def log_to_stderr(logger=None, level = logging.DEBUG):
     """Configures the python log system to log to stderr
 
     logger: Logger to configure. Pass none to use the root logger.
@@ -23,7 +23,7 @@ def log_to_stderr(logger=None):
     logger.setLevel(logging.DEBUG)
 
     handler = logging.StreamHandler()
-    handler.setLevel(logging.DEBUG)
+    handler.setLevel(level)
 
     formatter = logging.Formatter(
         '%(asctime)s [%(levelname)s|%(name)s] %(message)s')

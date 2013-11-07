@@ -2,11 +2,12 @@
 
 from roac import Roac, logs
 from roac.extra.http_poster import HTTPPoster
+import logging
 
 app = Roac()
 app.config.from_envvar('ROAC_CONFIG')
 poster = HTTPPoster(app)
-logs.log_to_stderr()
+logs.log_to_stderr(level = logging.WARNING)
 
 
 if __name__ == '__main__':
