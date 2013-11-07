@@ -23,4 +23,3 @@ for host in ${hosts[@]:1}; do
 done
 
 echo '}'
-
