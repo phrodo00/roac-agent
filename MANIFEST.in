@@ -1,6 +1,3 @@
 include README.rst
-include examples/centos/README.rst
-include examples/centos/etc/sysconfig/roacd
-include examples/centos/etc/init/*.conf
-include examples/centos/etc/roac.cfg
+include examples/centos/*
 include examples/scripts/*
