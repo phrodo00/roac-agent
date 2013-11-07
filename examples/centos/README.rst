@@ -3,8 +3,15 @@ Installing on Centos
 
 In this directory there the files to install a roac daemon on the system.
 
-Just copy the files in etc to the shown directories (the sysconfig directory 
-to the sysconfig directory in the system and so on).
+Just copy the files in this directory like this:
+
+=========================== ==============
+File                        Destination
+=========================== ==============
+roacd                       /etc/sysconfig
+roacd.conf, roacd_root.conf /etc/init
+roac.cfg                    /etc
+=========================== ==============
 
 Then you have to chose whether you want to run roacd as a regular user  or as
 root. We strongly recommend to run it as a user, but some scripts might need

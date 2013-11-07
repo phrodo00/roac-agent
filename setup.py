@@ -1,16 +1,17 @@
 from setuptools import setup
+from glob import glob
 import sys
+
 
 if 'bdist_rpm' in sys.argv:
     data_files = [('/etc/', ['examples/centos/etc/roac.cfg']),
                   ('/etc/sysconfig/', ['examples/centos/etc/sysconfig/roacd']),
-                  ('/etc/init/', ['examples/centos/etc/init/roacd.conf',
-                                  'examples/centos/etc/init/roacd_root.conf']),
-                  ('/var/lib/roac/scripts', ['examples/scripts/*'])
+                  ('/etc/init/', glob('examples/centos/etc/init/*.conf')),
+                  ('/var/lib/roac/scripts', glob('examples/scripts/*'))
                   ]
 else:
-    data_files = [('examples', ['examples/centos']),
-                  ('scripts', ['examples/scripts'])]
+    data_files = [('examples/centos', glob('examples/centos/*')),
+                  ('scripts', glob('examples/scripts/*'))]
 
 setup(name='roac',
       packages=['roac', 'roac.extra'],
